@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 #include "SDL.h"
 #include "Timer.h"
+#include "game.h"
 #include "graphics.h"
 
 const int GAME_FPS = 60;
@@ -31,8 +33,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		//draw screen
-		gfx_draw();
+		game_loop(dt / (1000.0f / GAME_FPS));
 
 		//cap FPS
 		uint32_t dtCurrent = Timer_elapsed(&game_timer);
@@ -45,6 +46,11 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void game_loop() {
+void game_loop(float timescale) {
+	rectangle.x = gfx_dim.w * 0.5;
+	rectangle.y = gfx_dim.h * 0.5;
+	rectangle.x += sin(Timer_now() * 0.001) * gfx_dim.w * 0.3;
+	rectangle.y += sin(Timer_now() * 0.002) * gfx_dim.h * 0.2;
 
+	gfx_draw();
 }
