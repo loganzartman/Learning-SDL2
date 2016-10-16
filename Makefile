@@ -6,10 +6,6 @@ all:
 	$(CC) game.c graphics.c -o bin/game -I"$(INCDIR)" -L"$(LIBDIR)" -lmingw32 -lSDL2
 
 clean:
-<<<<<<< HEAD
 	rm -rf bin
 	mkdir bin
 	cp "$(LIBDIR)/../bin/SDL2.dll" "bin/SDL2.dll"
-=======
-	rm -rf dist
->>>>>>> origin/master
