@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <SDL.h>
+#include "SDL.h"
 #include "graphics.h"
 
 SDL_Window *gfx_win;
@@ -23,6 +23,7 @@ int gfx_init() {
 	);
 	if (gfx_win == NULL) {
 		printf("SDL_CreateWindow error: %s\n", SDL_GetError());
+		return 1;
 	}
 
 	//create renderer
@@ -33,16 +34,16 @@ int gfx_init() {
 	);
 	if (gfx_rnd == NULL) {
 		printf("SDL_CreateRenderer error: %s\n", SDL_GetError());
+		return 1;
 	}
 
 	rectangle.x = 64;
 	rectangle.y = 64;
 	rectangle.w = 64;
 	rectangle.h = 64;
-	gfx_draw();
-	SDL_Delay(5000);
 
 	printf("SDL_Init success!\n");
+	return 0;
 }
 
 void gfx_draw() {
