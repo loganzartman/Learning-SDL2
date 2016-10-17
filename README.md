@@ -1,5 +1,6 @@
 #Learning-SDL2
 Watch me try to learn C and SDL2 at the same time!
+![demo image](http://i.imgur.com/ePjcmTU.gif)
 
 ###Building:
 Good luck! On Windows with MinGW and MSYS installed:
