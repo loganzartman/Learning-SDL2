@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "SDL.h"
+#include "vector.h"
 #include "Timer.h"
 #include "game.h"
 #include "graphics.h"
@@ -15,6 +18,21 @@ Timer game_timer;
 int main(int argc, char *argv[]) {
 	if (gfx_init() != 0) {
 		//return 1;
+	}
+
+	//vector test
+	vector v = vector_new();
+	for (int i=0; i<100; i++) {
+		int *j = malloc(sizeof(int));
+		*j = i;
+		vector_add(&v, j);
+	}
+	free(vector_remove(&v, 1)); //remove one element
+	
+	//print and remove all elements from vector
+	while (v.size > 0) {
+		printf("%d ", *((int*)vector_get(&v, 0)));
+		free(vector_remove(&v, 0));
 	}
 
 	//start game timer
