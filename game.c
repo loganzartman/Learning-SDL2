@@ -7,8 +7,10 @@
 #include "SDL.h"
 #include "vector.h"
 #include "Timer.h"
+#include "util.h"
 #include "game.h"
 #include "graphics.h"
+#include "particles.h"
 
 const int GAME_FPS = 60;
 bool game_running = true;
@@ -17,23 +19,10 @@ Timer game_timer;
 
 int main(int argc, char *argv[]) {
 	if (gfx_init() != 0) {
-		//return 1;
+		return 1;
 	}
 
-	//vector test
-	vector v = vector_new();
-	for (int i=0; i<100; i++) {
-		int *j = malloc(sizeof(int));
-		*j = i;
-		vector_add(&v, j);
-	}
-	free(vector_remove(&v, 1)); //remove one element
-	
-	//print and remove all elements from vector
-	while (v.size > 0) {
-		printf("%d ", *((int*)vector_get(&v, 0)));
-		free(vector_remove(&v, 0));
-	}
+	particles_init();
 
 	//start game timer
 	Timer_start(&game_timer);
@@ -65,10 +54,22 @@ int main(int argc, char *argv[]) {
 }
 
 void game_loop(float timescale) {
-	rectangle.x = gfx_dim.w * 0.5;
-	rectangle.y = gfx_dim.h * 0.5;
-	rectangle.x += sin(Timer_now() * 0.001) * gfx_dim.w * 0.3;
-	rectangle.y += sin(Timer_now() * 0.002) * gfx_dim.h * 0.2;
+	float x = gfx_dim.w * 0.5 + sin(Timer_now() * 0.004) * gfx_dim.w * 0.3;
+	float y = gfx_dim.h * 0.5 + sin(Timer_now() * 0.008) * gfx_dim.h * 0.15;
+	float dx = cos(Timer_now() * 0.004) * 15;
+	float dy = cos(Timer_now() * 0.008) * 10;
+	
+	for (int i=0; i<100; i++) {
+		float d = randfl(0, 6.28);
+		float s = randfl(0.5, 3);
+		float vx = dx + cos(d) * s;
+		float vy = dy + sin(d) * s;
+		particles_add(particle_new(x, y, vx, vy));
+	}
+	
+	particles_step(timescale);
+
+	printf("cap=%d, n=%d\n",particles_list->capacity,particles_list->size);
 
 	gfx_draw();
 }

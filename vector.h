@@ -14,7 +14,7 @@ typedef struct vector {
  * Creates and initializes a vector.
  * Returns the vector, or NULL if memory allocation failed.
  */
-vector vector_new();
+vector* vector_new();
 
 /**
  * Adds an element to the vector.

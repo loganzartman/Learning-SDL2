@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include "vector.h"
 
-vector vector_new() {
-	vector v;
-	v.size = 0;
-	v.capacity = VECTOR_INITIAL_SIZE;
+vector* vector_new() {
+	vector *v = malloc(sizeof(vector));
+	v->size = 0;
+	v->capacity = VECTOR_INITIAL_SIZE;
 	
 	//try to allocate memory
-	v.cont = calloc(v.capacity, sizeof(void*));
+	v->cont = calloc(v->capacity, sizeof(void*));
 	return v;
 }
 

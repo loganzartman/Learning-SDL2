@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "SDL.h"
 #include "graphics.h"
+#include "particles.h"
 
 SDL_Window *gfx_win;
 SDL_Renderer *gfx_rnd;
@@ -51,8 +52,7 @@ void gfx_draw() {
 	SDL_SetRenderDrawColor(gfx_rnd, 255, 255, 255, 255);
 	SDL_RenderFillRect(gfx_rnd, &gfx_dim);
 
-	SDL_SetRenderDrawColor(gfx_rnd, 255, 0, 0, 255);
-	SDL_RenderFillRect(gfx_rnd, &rectangle);
+	particles_draw(gfx_rnd);
 	SDL_RenderPresent(gfx_rnd);
 }
 
