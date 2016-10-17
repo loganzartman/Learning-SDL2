@@ -21,7 +21,7 @@ int gfx_init() {
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		gfx_dim.w, gfx_dim.h,
-		SDL_WINDOW_SHOWN
+		SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 	);
 	if (gfx_win == NULL) {
 		printf("SDL_CreateWindow error: %s\n", SDL_GetError());

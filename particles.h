@@ -11,7 +11,6 @@ vector* particles_list;
 typedef struct particle {
 	float x, y;
 	float vx, vy;
-	SDL_Rect rect;
 	bool dead;
 } particle;
 

@@ -38,6 +38,26 @@ int main(int argc, char *argv[]) {
 				game_running = false;
 				break;
 			}
+			else if (event.type == SDL_MOUSEMOTION) {
+				mouse.x = event.motion.x;
+				mouse.y = event.motion.y;
+			}
+			else if (event.type == SDL_MOUSEBUTTONDOWN) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					mouse.down = true;
+				}
+			}
+			else if (event.type == SDL_MOUSEBUTTONUP) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					mouse.down = false;
+				}
+			}
+			else if (event.type == SDL_WINDOWEVENT) {
+				if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+					gfx_dim.w = event.window.data1;
+					gfx_dim.h = event.window.data2;
+				}
+			}
 		}
 
 		game_loop(dt / (1000.0f / GAME_FPS));
@@ -54,22 +74,45 @@ int main(int argc, char *argv[]) {
 }
 
 void game_loop(float timescale) {
-	float x = gfx_dim.w * 0.5 + sin(Timer_now() * 0.004) * gfx_dim.w * 0.3;
-	float y = gfx_dim.h * 0.5 + sin(Timer_now() * 0.008) * gfx_dim.h * 0.15;
-	float dx = cos(Timer_now() * 0.004) * 15;
-	float dy = cos(Timer_now() * 0.008) * 10;
-	
-	for (int i=0; i<100; i++) {
-		float d = randfl(0, 6.28);
-		float s = randfl(0.5, 3);
-		float vx = dx + cos(d) * s;
-		float vy = dy + sin(d) * s;
-		particles_add(particle_new(x, y, vx, vy));
+	float x,y,dx,dy,len;
+	if (mouse.down) {
+		x = mouse.px;
+		y = mouse.py;
+		float vx = mouse.x - mouse.px;
+		float vy = mouse.y - mouse.py;
+		dx = vx;
+		dy = vy;
+		len = sqrt(vx*vx + vy*vy);
 	}
-	
+	else {
+		x = gfx_dim.w * 0.5 + sin(Timer_now() * 0.004) * gfx_dim.w * 0.3;
+		y = gfx_dim.h * 0.5 + sin(Timer_now() * 0.008) * gfx_dim.h * 0.15;
+		dx = cos(Timer_now() * 0.004) * 60;
+		dy = cos(Timer_now() * 0.008) * 40;
+		len = sqrt(dx*dx + dy*dy);
+	}
+	mouse.px = mouse.x;
+	mouse.py = mouse.y;
+
+	float d0 = atan2(dy,dx);
+	for (int i=0; i<len; i++) {
+		float xx = x + dx * i / len;
+		float yy = y + dy * i / len;
+
+		for (int j=0; j<4; j++) {
+			float d = randfl(0, 6.28);
+			float s = randfl(0.5, 1);
+			float rd0 = randfl(-0.4,0.4);
+			float rs = randfl(0.5,1.0);
+			float vx = cos(d0 + rd0)*len*rs*0.3 + cos(d) * s;
+			float vy = sin(d0 + rd0)*len*rs*0.3 + sin(d) * s;
+			particles_add(particle_new(xx, yy, vx, vy));
+		}
+	}
+
 	particles_step(timescale);
 
-	printf("cap=%d, n=%d\n",particles_list->capacity,particles_list->size);
+	// printf("cap=%d, n=%d\n",particles_list->capacity,particles_list->size);
 
 	gfx_draw();
 }
