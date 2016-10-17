@@ -9,3 +9,4 @@ SDL_Rect gfx_dim;
 int gfx_init();
 void gfx_draw();
 void gfx_destroy();
+void gfx_setDrawHue(SDL_Renderer *rnd, float hue);

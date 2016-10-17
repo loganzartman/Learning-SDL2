@@ -33,8 +33,7 @@ void particles_step(float timescale) {
 void particles_draw(SDL_Renderer *rnd) {
 	for (int i=0; i<particles_list->size; i++) {
 		particle* p = (particle*)vector_get(particles_list, i);
-		int bval = MIN((int)(255 * particle_speed(p) / 30.0f), 255);
-		SDL_SetRenderDrawColor(rnd, 255-bval, 0, bval, 255);
+		gfx_setDrawHue(rnd, particle_speed(p) / 30.0f);
 		SDL_RenderDrawLine(rnd, p->x, p->y, p->x-p->vx, p->y-p->vy);
 	}
 };

@@ -16,12 +16,15 @@ const int GAME_FPS = 60;
 bool game_running = true;
 SDL_Event event;
 Timer game_timer;
+float px, py;
 
 int main(int argc, char *argv[]) {
+	//try initializing SDL2
 	if (gfx_init() != 0) {
 		return 1;
 	}
 
+	//initialize particle system
 	particles_init();
 
 	//start game timer
@@ -34,24 +37,33 @@ int main(int argc, char *argv[]) {
 
 		//poll events from queue
 		while (SDL_PollEvent(&event) != 0) {
+			//close button
 			if (event.type == SDL_QUIT) {
 				game_running = false;
 				break;
 			}
+
+			//mouse moved
 			else if (event.type == SDL_MOUSEMOTION) {
 				mouse.x = event.motion.x;
 				mouse.y = event.motion.y;
 			}
+
+			//any mouse button down
 			else if (event.type == SDL_MOUSEBUTTONDOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					mouse.down = true;
 				}
 			}
+
+			//any mouse button up
 			else if (event.type == SDL_MOUSEBUTTONUP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					mouse.down = false;
 				}
 			}
+
+			//a window event
 			else if (event.type == SDL_WINDOWEVENT) {
 				if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
 					gfx_dim.w = event.window.data1;
@@ -74,45 +86,67 @@ int main(int argc, char *argv[]) {
 }
 
 void game_loop(float timescale) {
-	float x,y,dx,dy,len;
+	//calculate parameters for new particles
+	float nx,ny;  //new position
+	float dx,dy;  //change in position
+	float len;    //length of position change vector
+	float vm;     //velocity multiplier
+
+	//mouse input
 	if (mouse.down) {
-		x = mouse.px;
-		y = mouse.py;
-		float vx = mouse.x - mouse.px;
-		float vy = mouse.y - mouse.py;
-		dx = vx;
-		dy = vy;
-		len = sqrt(vx*vx + vy*vy);
-	}
-	else {
-		x = gfx_dim.w * 0.5 + sin(Timer_now() * 0.004) * gfx_dim.w * 0.3;
-		y = gfx_dim.h * 0.5 + sin(Timer_now() * 0.008) * gfx_dim.h * 0.15;
-		dx = cos(Timer_now() * 0.004) * 60;
-		dy = cos(Timer_now() * 0.008) * 40;
+		nx = mouse.x;
+		ny = mouse.y;
+		dx = nx - px;
+		dy = ny - py;
 		len = sqrt(dx*dx + dy*dy);
+		vm = 0.3;
 	}
-	mouse.px = mouse.x;
-	mouse.py = mouse.y;
 
-	float d0 = atan2(dy,dx);
+	//demo mode
+	else {
+		nx = gfx_dim.w * 0.5 + sin(Timer_now() * 0.004) * gfx_dim.w * 0.3;
+		ny = gfx_dim.h * 0.5 + sin(Timer_now() * 0.008) * gfx_dim.h * 0.15;
+		dx = nx - px;
+		dy = ny - py;
+		len = sqrt(dx*dx + dy*dy);
+		vm = 1.2;
+	}
+
+	//create new particles
+	//draws a line of particles between old and new position
+	float x=px, y=py; //set start position to previous (last frame) position
+	float d0 = atan2(dy,dx); //set base direction to the angle of change in position
+	float s0 = MIN(len, 80); //set base speed
+
+	//step through change in position, one pixel at a time
 	for (int i=0; i<len; i++) {
-		float xx = x + dx * i / len;
-		float yy = y + dy * i / len;
+		float xx = x + dx * i / len; //calculate current x
+		float yy = y + dy * i / len; //calculate current y
 
-		for (int j=0; j<4; j++) {
+		//make 5 particles
+		for (int j=0; j<5; j++) {
+			//calculate a random velocity vector
 			float d = randfl(0, 6.28);
-			float s = randfl(0.5, 1);
-			float rd0 = randfl(-0.4,0.4);
-			float rs = randfl(0.5,1.0);
-			float vx = cos(d0 + rd0)*len*rs*0.3 + cos(d) * s;
-			float vy = sin(d0 + rd0)*len*rs*0.3 + sin(d) * s;
+			float s = randfl(0.2, 0.8);
+
+			float rd0 = randfl(-0.4,0.4); //random variation to base direction
+			float rs = randfl(0.5,1.0); //random variation to base speed
+
+			//calculate velocity as sum of random vector and base direction and speed
+			//base direction and speed have random variation added.
+			float vx = cos(d0 + rd0)*s0*rs*vm + cos(d) * s;
+			float vy = sin(d0 + rd0)*s0*rs*vm + sin(d) * s;
+
+			//add thew new particle
 			particles_add(particle_new(xx, yy, vx, vy));
 		}
 	}
 
+	//store current position as new previous position
+	px = nx;
+	py = ny;
+
+	//advance simulation and render
 	particles_step(timescale);
-
-	// printf("cap=%d, n=%d\n",particles_list->capacity,particles_list->size);
-
 	gfx_draw();
 }

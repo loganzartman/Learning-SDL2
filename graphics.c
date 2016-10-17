@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "graphics.h"
 #include "particles.h"
+#include "util.h"
 
 SDL_Window *gfx_win;
 SDL_Renderer *gfx_rnd;
@@ -49,7 +50,7 @@ int gfx_init() {
 }
 
 void gfx_draw() {
-	SDL_SetRenderDrawColor(gfx_rnd, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(gfx_rnd, 43, 38, 40, 255);
 	SDL_RenderFillRect(gfx_rnd, &gfx_dim);
 
 	particles_draw(gfx_rnd);
@@ -60,4 +61,28 @@ void gfx_destroy() {
 	SDL_DestroyRenderer(gfx_rnd);
 	SDL_DestroyWindow(gfx_win);
 	SDL_Quit();
+}
+
+void gfx_setDrawHue(SDL_Renderer *rnd, float hue) {
+	hue -= (int)hue;
+	float r,g,b,hf;
+	if (hue < 0.33) {
+		hf = 2*hue/0.33;
+		r = MIN(1, 2-hf);
+		g = MIN(1, hf);
+		b = 0;
+	}
+	else if (hue < 0.66) {
+		hf = 2*(hue-0.33)/0.33;
+		r = 0;
+		g = MIN(1, 2-hf);
+		b = MIN(1, hf);
+	}
+	else {
+		hf = 2*(hue-0.66)/0.33;
+		r = MIN(1, hf);
+		g = 0;
+		b = MIN(1, 2-hf);
+	}
+	SDL_SetRenderDrawColor(rnd, (int)(r*255), (int)(g*255), (int)(b*255), 255);
 }
